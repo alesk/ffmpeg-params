@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 
 import re
-import json
+from sys import argv
 from utils import mklist, dict_merge, load_json
 
 PRESETS = load_json('default-presets.json')
 
 
 def calculate_preset(key, opts = {}):
-    m = PRESETS[key]
-    extends = mklist(m.get('extends', []))
-    extends_dicts = map(calculate_preset, extends) + [m, opts]
-    return dict_merge({}, *extends_dicts)
+    m = PRESETS.get(key)
+    if m:
+        extends = mklist(m.get('extends', []))
+        extends_dicts = map(calculate_preset, extends) + [m, opts]
+        return dict_merge({}, *extends_dicts)
+    else:
+        return {}
 
 
 def calcualte_streams():
@@ -64,32 +67,11 @@ def make_cmd(source, preset, options = {}):
         (source, make_output_params(calculate_preset(preset, options)), preset)
     return re.sub(r'\s+', ' ', cmd)
 
-def krista():
-    print "#!/bin/sh"
-    print make_cmd("$1", "mpeg1TeaserVideo")
-    print make_cmd("$1", "mpeg1LQVideo")
-    print make_cmd("$1", "mpeg1HQVideo")
-    print make_cmd("$1", "mpeg4LQ")
-    print make_cmd("$1", "mpeg4LQVideo")
-    print make_cmd("$1", "mpeg4HQ")
-    print make_cmd("$1", "mpeg4HQVideo")
-
-def krista_hq():
-    mp4_hq_settings = {
-        "videoBitRate": None,
-        "videoMaxBitRate": None,
-        "videoBufferSize": None,
-        "constantRateFactor":35}
-
-    print "#!/bin/sh"
-    print make_cmd("$1", "mpeg1TeaserVideo", {"videoBitRate": "200k"})
-    print make_cmd("$1", "mpeg1LQVideo", {"videoBitRate": "300k"})
-    print make_cmd("$1", "mpeg1HQVideo", {"videoBitRate": "400k"})
-    print make_cmd("$1", "mpeg4LQ", mp4_hq_settings)
-    print make_cmd("$1", "mpeg4LQVideo", mp4_hq_settings)
-    print make_cmd("$1", "mpeg4HQ", mp4_hq_settings)
-    print make_cmd("$1", "mpeg4HQVideo", mp4_hq_settings)
+def build_bash(options = {}):
+    streamKeys = [ k for k, v in PRESETS.items() if v.get('makeStream')]
+    ffmpegs = map(lambda streamKey: make_cmd("$1", streamKey, options.get(streamKey)), streamKeys)
+    results = ["#!/bin/sh"] + ffmpegs + [""]
+    print "\n".join(results)
 
 if __name__ == "__main__":
-    #krista()
-    krista_hq()
+    build_bash(load_json(argv[1]) if len(argv) > 1 else {})
