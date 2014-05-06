@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+*.pyc
+*.log
+*.avi
+*.mp4
+*.mov
+*.txt

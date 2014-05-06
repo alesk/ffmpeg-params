@@ -14,3 +14,7 @@ collecting the following output parameters:
   - Avg B frame Quality reduction
 
 
+
+## Original video stream parameters 
+
+
