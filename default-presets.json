@@ -1,8 +1,8 @@
-PRESETS = {
+{
     "base": {
         "alignTo": 2,
         "preset": "veryslow",
-        "report": True,
+        "report": true,
         "threads": 4
     },
 
@@ -20,7 +20,6 @@ PRESETS = {
     "mpeg4":  {
         "extends": "base",
         "videoCodec": "libx264",
-        #"audioCodec": "libfaac",
         "audioCodec": "libfdk_aac",
         "fps": "24",
         "format": "mp4",
@@ -32,7 +31,7 @@ PRESETS = {
     },
 
     "mpeg1TeaserVideo": {
-        "makeStream": True,
+        "makeStream": true,
         "extends": "mpeg1",
         "height": 56,
         "videoBitRate": "100k"
@@ -40,13 +39,13 @@ PRESETS = {
 
     "aacAudio": {
         "format": "mp4",
-        "videoCodec": None,
+        "videoCodec": null,
         "audioCodec": "libfaac",
         "audioBitRate": "64k"
     },
 
     "mpeg1LQVideo": {
-        "makeStream": True,
+        "makeStream": true,
         "extends": "mpeg4",
         "height": 128,
         "videoBitRate": "200k"
@@ -67,7 +66,7 @@ PRESETS = {
 
     "mpeg4LQVideo": {
         "extends": "mpeg4",
-        "audioCodec": None,
+        "audioCodec": null,
         "height": 320,
         "videoMaxBitRate": "180k"
     },
@@ -82,7 +81,7 @@ PRESETS = {
 
     "mpeg4HQVideo": {
         "extends": "mpeg4",
-        "audioCodec": None,
+        "audioCodec": null,
         "height": 480,
         "videoProfile": "main",
         "videoMaxBitRate": "180k"

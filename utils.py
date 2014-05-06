@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 from copy import deepcopy
 
 
@@ -25,3 +26,6 @@ def dict_merge(target, *args):
 
 mklist = lambda x: x if isinstance(x, list) else [x]
 
+def load_json(filename):
+    with open(filename, 'r') as fl:
+        return json.loads(fl.read())

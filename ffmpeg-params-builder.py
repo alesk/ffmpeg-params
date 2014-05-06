@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import re
-from params import PRESETS
-from utils import mklist, dict_merge
+import json
+from utils import mklist, dict_merge, load_json
+
+PRESETS = load_json('default-presets.json')
 
 
 def calculate_preset(key, opts = {}):
