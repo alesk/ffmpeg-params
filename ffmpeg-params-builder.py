@@ -44,6 +44,7 @@ PARAMS = [
     ["strict", "-strict %(strict)s", ""],
     ["pass", "-pass %(pass)s", ""],
     ["report", "-report", ""],
+    ["peakSignalToNoiseRatio", "-psnr", ""],
     ["threads", "-threads %(threads)s", ""]
     ]
 

@@ -23,6 +23,8 @@ collecting the following output parameters:
 
 ## Video quality estimation
 
+### Peak Signal to Noise Ratio (PSNR)
+
 Use `-psnr` parameter to tell ffmpeg to calculate psnr values
 
 ## Other settings

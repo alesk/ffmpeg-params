@@ -3,7 +3,8 @@
         "alignTo": 2,
         "preset": "veryslow",
         "report": true,
-        "threads": 4
+        "threads": 4,
+        "peakSignalToNoiseRatio": true
     },
 
     "mpeg1": {
