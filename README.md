@@ -17,4 +17,15 @@ collecting the following output parameters:
 
 ## Original video stream parameters 
 
+## Mpeg1
 
+`-bf <frames>` Use `<frames>` B-frames. To disable bframes, use `-bf 0`
+
+## Video quality estimation
+
+Use `-psnr` parameter to tell ffmpeg to calculate psnr values
+
+## Other settings
+
+`-vstats` Dump video coding statistics to vstats_HHMMSS.log
+`-vstats_file`

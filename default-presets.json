@@ -10,6 +10,7 @@
         "extends": "base",
         "videoCodec": "mpeg1video",
         "fps": "24",
+        "bFrames":0,
         "strict": "-1",
         "format": "avi",
         "bitrate": "300k",
