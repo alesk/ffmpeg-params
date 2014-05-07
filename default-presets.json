@@ -3,13 +3,15 @@
         "alignTo": 2,
         "preset": "veryslow",
         "report": true,
-        "threads": 4
+        "threads": 4,
+        "peakSignalToNoiseRatio": true
     },
 
     "mpeg1": {
         "extends": "base",
         "videoCodec": "mpeg1video",
         "fps": "24",
+        "bFrames":0,
         "strict": "-1",
         "format": "avi",
         "bitrate": "300k",

@@ -31,6 +31,7 @@ PARAMS = [
     ["videoCodec", "-codec:v %(videoCodec)s", "-vn"],
     ["fps", "-r %(fps)s", ""],
     ["constantRateFactor", "-crf %(constantRateFactor)s", ""],
+    ["bFrames", "-bf %(bFrames)s", ""],
     ["videoBitRate", "-b:v %(videoBitRate)s", ""],
     ["videoMaxBitRate", "-maxrate %(videoMaxBitRate)s", ""],
     ["videoBufferSize", "-bufsize %(videoBufferSize)s", ""],
@@ -43,6 +44,7 @@ PARAMS = [
     ["strict", "-strict %(strict)s", ""],
     ["pass", "-pass %(pass)s", ""],
     ["report", "-report", ""],
+    ["peakSignalToNoiseRatio", "-psnr", ""],
     ["threads", "-threads %(threads)s", ""]
     ]
 
