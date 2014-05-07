@@ -1,10 +1,9 @@
 {
     "base": {
         "alignTo": 2,
-        "preset": "veryslow",
+        "preset": "slow",
         "report": true,
-        "threads": 4,
-        "peakSignalToNoiseRatio": true
+        "threads": 4
     },
 
     "mpeg1": {
@@ -15,7 +14,8 @@
         "strict": "-1",
         "format": "avi",
         "bitrate": "300k",
-        "strict": -1
+        "strict": -1,
+        "peakSignalToNoiseRatio": null
 
     },
 
@@ -29,7 +29,8 @@
         "videoBitRate": "300k",
         "audioBitRate": "64k",
         "pixFormat": "yuv420p",
-        "videoBufferSize": "720k"
+        "videoBufferSize": "720k",
+        "peakSignalToNoiseRatio": null
     },
 
     "mpeg1TeaserVideo": {
@@ -43,8 +44,9 @@
         "makeStream": true,
         "format": "mp4",
         "videoCodec": null,
-        "audioCodec": "libfaac",
-        "audioBitRate": "64k"
+        "audioCodec": "libfdk_aac",
+        "audioBitRate": "64k",
+        "tune": "ssim"
     },
 
     "mpeg1LQVideo": {
@@ -65,6 +67,7 @@
         "makeStream": true,
         "extends": "mpeg4",
         "height": 320,
+        "videoProfile": "baseline",
         "videoMaxBitRate": "180k",
         "videoBufferSize": "1200k"
     },
@@ -74,6 +77,7 @@
         "extends": "mpeg4",
         "audioCodec": null,
         "height": 320,
+        "videoProfile": "baseline",
         "videoMaxBitRate": "180k"
     },
 
