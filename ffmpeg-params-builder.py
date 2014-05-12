@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
 import re
+from optparse import OptionParser
+import os
 from sys import argv
 from utils import mklist, dict_merge, load_json
 
-PRESETS = load_json('default-presets.json')
 
+_options = None
 
 def calculate_preset(key, opts = {}):
-    m = PRESETS.get(key)
+    m = get_base_presets().get(key)
     if m:
         extends = mklist(m.get('extends', []))
         extends_dicts = map(calculate_preset, extends) + [m, opts]
@@ -18,7 +20,7 @@ def calculate_preset(key, opts = {}):
 
 
 def calcualte_streams():
-    presets = [k for k,v in PRESETS.items() if v.get('makeStream')]
+    presets = [k for k,v in get_base_presets().items() if v.get('makeStream')]
     return dict(zip(presets, map(deep_merge, presets)))
 
 """Each member of list consists of required parameters and template string
@@ -40,10 +42,12 @@ PARAMS = [
     ["audioCodec", "-codec:a %(audioCodec)s", "-an"],
     ["audioBitRate", "-b:a %(audioBitRate)s", ""],
     ["audioProfile", "-profile:a %(audioProfile)s", ""],
+    ["audioChannels", "-ac %(audioChannels)s", ""],
     ["pixFormat", "-pix_fmt %(pixFormat)s", ""],
     ["preset", "-preset %(preset)s", ""],
     ["strict", "-strict %(strict)s", ""],
     ["stats", "-stats", "-nostats"],
+    ["movFlags", "-movflags %(movFlags)s", ""],
     ["pass", "-pass %(pass)s", ""],
     ["report", "-report", ""],
     ["peakSignalToNoiseRatio", "-psnr", ""],
@@ -53,6 +57,13 @@ PARAMS = [
 def all_not_none(dct):
     print dct
     return len(filter(lambda x: x, dct.values)) == len(dct)
+
+_presets = None
+def get_base_presets():
+    global _presets
+    if _presets is None:
+        _presets = load_json(_options.base_presets)
+    return _presets
 
 def make_ffmpeg_params(preset):
     for param in PARAMS:
@@ -66,16 +77,34 @@ def make_ffmpeg_params(preset):
 def make_output_params(preset):
     return " ".join([p for p in make_ffmpeg_params(preset)])
 
-def make_cmd(source, preset, options = {}):
+def make_cmd(custom_settings, preset):
     cmd = "ffmpeg -y -i %s %s %s" % \
-        (source, make_output_params(calculate_preset(preset, options)), preset)
+        (_options.source_video, make_output_params(calculate_preset(preset, custom_settings)), preset)
     return re.sub(r'\s+', ' ', cmd)
 
-def build_bash(options = {}):
-    streamKeys = [ k for k, v in PRESETS.items() if v.get('makeStream')]
-    ffmpegs = map(lambda streamKey: make_cmd("$1", streamKey, options.get(streamKey)), streamKeys)
+def build_bash(custom_settings, source_video = '$1'):
+    streamKeys = [ k for k, v in get_base_presets().items() if v.get('makeStream')]
+    ffmpegs = map(lambda streamKey: make_cmd(custom_settings.get(streamKey), streamKey), streamKeys)
     results = ["#!/bin/sh"] + ffmpegs + [""]
     print "\n".join(results)
 
+def main():
+    global _options
+    parser = OptionParser(description = "Create batch file from video transcoding")
+
+    parser.add_option('-p', '--presets',
+                        dest='base_presets',
+                        default=os.environ.get('FFMPEG_get_base_presets()', 'default-presets.json'),
+                        help = 'File with default ffmpeg presets')
+
+    parser.add_option('-s', '--source-video',
+                        dest='source_video',
+                        default='$1',
+                        help='Name of source video in script.')
+
+    _options, args = parser.parse_args();
+    build_bash(len(args) > 0 and load_json(args[0]) or {})
+
+
 if __name__ == "__main__":
-    build_bash(load_json(argv[1]) if len(argv) > 1 else {})
+    main()
