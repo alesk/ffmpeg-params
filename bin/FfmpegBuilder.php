@@ -1,6 +1,6 @@
 <?php 
 
-require_once __DIR__ . "/utils.php";
+require_once __DIR__ . "/Utils.php";
 
 $ffmpegMap = [
     ["format", "-f %(format)s", ""],
@@ -52,15 +52,6 @@ function ffmpeg_params($preset) {
 }
 
 function build_ffmpeg_cmd($source_file, $dest_file, $params) {
-  return "ffmpeg -y -i {$source_file} " . ffmpeg_params($params) . " {$dest_file}";
-}
-
-function merge_presets($basic, $custom) {
-  $keys = array_keys($basic) + array_keys($custom);
-  $merge_arrays = function($key) use ($basic, $custom) {
-    return array_merge(dget($basic, $key, array()), dget($custom, $key, array()));
-  };
-
-  return array_combine($keys, array_map($merge_arrays, $keys));
+  return "ffmpeg -loglevel info  -y -i {$source_file} " . ffmpeg_params($params) . " -stats {$dest_file}";
 }
 

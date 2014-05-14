@@ -9,6 +9,10 @@ function dget($dict, $key, $default) { return isset($dict[$key]) ? $dict[$key] :
 
 function make_list($mixed) { return is_array($mixed) ? $mixed : array($mixed); }
 
+function embrace($pre, $post) {return function($v) use($pre, $post) {return $pre . $v . $post;};}
+function with_prefix($pre) {return embrace($pre, "");}
+function with_postfix($post) {return embrace("", $post);}
+
 function python_like_replace($template, $map) {
   $ret = $template;
   foreach($map as $key => $value) {
@@ -19,6 +23,8 @@ function python_like_replace($template, $map) {
 }
 
 function split_line($line) {return trim($line) == "" ? null : preg_split("/\s+/", $line);}
+
+function not_file_or_dir($fileName) {return !(is_dir($fileName) or is_file($fileName));}
 
 // ffmpeg tree hierarchy utils
 
@@ -41,3 +47,27 @@ function extend_all($basic) {
   return array_combine($keys, array_map($extend, $keys));
 }
 
+function merge_presets($basic, $custom) {
+  $keys = array_keys($basic) + array_keys($custom);
+  $merge_arrays = function($key) use ($basic, $custom) {
+    return array_merge(dget($basic, $key, array()), dget($custom, $key, array()));
+  };
+
+  return array_combine($keys, array_map($merge_arrays, $keys));
+}
+
+function get_streams($presets) {
+  return array_filter(
+    $presets, function($val) {return dget($val, 'makeStream', false);});
+}
+function load_presets_json($fileName, $throwWhenFilDoesNotExist = false) {
+  if ($throwWhenFilDoesNotExist && !is_file($fileName))
+   throw new Exception("File $fileName does not exist.\n");
+  return is_file($fileName) ? 
+    extend_all(json_decode(file_get_contents($fileName), true)) :
+    Array();
+}
+
+function preset_filter($presets, $presetNames) {
+  return count($presetNames) > 0 ? array_intersect_key($presets, array_combine($presetNames, $presetNames)) : $presets;
+}

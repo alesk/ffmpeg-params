@@ -30,7 +30,9 @@
         "audioBitRate": "64k",
         "pixFormat": "yuv420p",
         "videoBufferSize": "720k",
-        "peakSignalToNoiseRatio": null
+        "peakSignalToNoiseRatio": null,
+        "movFlags": "faststart",
+        "audioChanels": "2"
     },
 
     "mpeg1TeaserVideo": {
@@ -46,7 +48,7 @@
         "videoCodec": null,
         "audioCodec": "libfdk_aac",
         "audioBitRate": "64k",
-        "tune": "ssim"
+        "audioChanels": "2"
     },
 
     "mpeg1LQVideo": {
@@ -69,16 +71,15 @@
         "height": 320,
         "videoProfile": "baseline",
         "videoMaxBitRate": "180k",
-        "videoBufferSize": "1200k"
+        "videoBufferSize": "1200k",
+        "audioBitRate": "64k"
     },
 
     "mpeg4LQVideo": {
         "makeStream": true,
-        "extends": "mpeg4",
+        "extends": "mpeg4LQ",
         "audioCodec": null,
-        "height": 320,
-        "videoProfile": "baseline",
-        "videoMaxBitRate": "180k"
+        "audioChanels": null
     },
 
     "mpeg4HQ": {
@@ -86,17 +87,16 @@
         "extends": "mpeg4",
         "height": 480,
         "videoProfile": "main",
-        "videoMaxBitRate": "180k",
-        "videoBufferSize": "1200k"
+        "videoMaxBitRate": "300k",
+        "videoBufferSize": "1200k",
+        "audioBitRate": "128k"
     },
 
     "mpeg4HQVideo": {
         "makeStream": true,
-        "extends": "mpeg4",
+        "extends": "mpeg4HQ",
         "audioCodec": null,
-        "height": 480,
-        "videoProfile": "main",
-        "videoMaxBitRate": "180k"
+        "audioChanels": null
     }
 
 
