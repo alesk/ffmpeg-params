@@ -16,6 +16,8 @@ $apiUsername = getenv('CELTRA_API_USERNAME') ?: null;
 $apiPassword = getenv('CELTRA_API_PASSWORD') ?: null;
 $tempDir     = (getenv('CELTRA_API_TEMP') ?: '/tmp') . "/ffmpeg";
 
+print_r([$apiUrl, $apiUsername, $apiPassword ]);
+
 
 $help =<<<EOF
   $scriptName [options] command [args]
@@ -23,6 +25,8 @@ $help =<<<EOF
   Commands:
 
     get-video-streams <creative_id>
+
+    transcode-batch <custom-json> [streamName, ...]
 
     transcode <dir> [<custom-json>] [streamName, ...]
 
@@ -33,6 +37,7 @@ $help =<<<EOF
     import-to-database <dir> [streamName, ...]
 
     upload-blobs <dir> [streamName, ...]
+
 EOF;
 
 function get_video_streams($creativeId, $tempDir, $clientApi, $clientCache) {
@@ -47,6 +52,14 @@ function get_video_streams($creativeId, $tempDir, $clientApi, $clientCache) {
         file_put_contents($outputFile, $clientCache->request('GET', "blobs/$blobHash"));
         print("Movie stream downloaded to:\033[35m$outputFile\033[0m\n");
       }
+}
+
+function transcode_batch($presets) {
+      $ret = [];
+      foreach($presets as $presetName => $preset) {
+        $ret []= build_ffmpeg_cmd("$1", $presetName, $preset);
+      }
+      return "#!/bin/bash\n\n" . implode("\n", $ret);
 }
 
 function transcode($outputDir, $sourceFile, $presets) {
@@ -116,12 +129,19 @@ function main2($command, $arguments, $options) {
   $presetsFile = dget($options, 'p', dget($options, 'presets', getenv('FFMPEG_PRESETS_FILE') ?: 'default-presets.json'));
   $presetFilters = array_filter($arguments, "not_file_or_dir");
 
-  $presets = load_presets_json($presetsFile);
+  $presets = load_presets_json($presetsFile, true);
 
   switch ($command) {
     case 'get-video-streams':
       $creativeId = $arguments[0];
       get_video_streams($creativeId, $tempDir, $clientApi, $clientCache);
+      break;
+
+    case 'transcode-batch':
+      $outputDir = $arguments[0];
+      $sourceFile = $outputDir . "/source";
+      $withCustomPresets = isset($arguments[1]) ? merge_presets($presets, load_presets_json($arguments[1])) : $presets;
+      print (transcode_batch(get_streams(preset_filter($withCustomPresets, $presetFilters))));
       break;
 
     case 'transcode':
