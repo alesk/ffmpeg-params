@@ -16,9 +16,6 @@ $apiUsername = getenv('CELTRA_API_USERNAME') ?: null;
 $apiPassword = getenv('CELTRA_API_PASSWORD') ?: null;
 $tempDir     = (getenv('CELTRA_API_TEMP') ?: '/tmp') . "/ffmpeg";
 
-print_r([$apiUrl, $apiUsername, $apiPassword ]);
-
-
 $help =<<<EOF
   $scriptName [options] command [args]
 
@@ -140,33 +137,33 @@ function main2($command, $arguments, $options) {
     case 'transcode-batch':
       $outputDir = $arguments[0];
       $sourceFile = $outputDir . "/source";
-      $withCustomPresets = isset($arguments[1]) ? merge_presets($presets, load_presets_json($arguments[1])) : $presets;
+      $withCustomPresets = isset($arguments[1]) ? merge_presets($presets, load_presets_json($arguments[1], true)) : $presets;
       print (transcode_batch(get_streams(preset_filter($withCustomPresets, $presetFilters))));
       break;
 
     case 'transcode':
       $outputDir = $arguments[0];
       $sourceFile = $outputDir . "/source";
-      $withCustomPresets = isset($arguments[1]) ? merge_presets($presets, load_presets_json($arguments[1])) : $presets;
+      $withCustomPresets = isset($arguments[1]) ? merge_presets($presets, load_presets_json($arguments[1], true)) : $presets;
       transcode($outputDir, $sourceFile, get_streams(preset_filter($withCustomPresets, $presetFilters)));
       break;
 
     case 'replace-sql':
       $outputDir = $arguments[0];
       $sourceFile = $outputDir . "/source";
-      print_r(replace_sql($outputDir, $sourceFile, get_streams($presets)));
+      print_r(replace_sql($outputDir, $sourceFile, get_streams($presets)). ";\n");
       break;
 
     case 'update-sql':
       $outputDir = $arguments[0];
       $sourceFile = $outputDir . "/source";
       $sqls = update_sql($outputDir, $sourceFile, get_streams($presets));
-      print_r(implode(";\n",$sqls));
+      print_r(implode(";\n",$sqls). ";\n");
       break;
 
     case 'upload-blobs':
       $outputDir = $arguments[0];
-      upload_blobs($outputDir, array_keys(preset_filter($presets, $presetFilters)), $clientApi);
+      upload_blobs($outputDir, array_keys(get_streams(preset_filter($presets, $presetFilters))), $clientApi);
       break;
 
 
