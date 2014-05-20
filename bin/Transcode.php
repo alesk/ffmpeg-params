@@ -35,6 +35,8 @@ $help =<<<EOF
 
     upload-blobs <dir> [streamName, ...]
 
+    delete-custom-blobs <dir> [streamName, ...]
+
 EOF;
 
 function get_video_streams($creativeId, $tempDir, $clientApi, $clientCache) {
@@ -110,13 +112,21 @@ function update_sql($outputDir, $sourceFile, $presets) {
   return array_map(make_update_sql($sourceHash), $presetNames,  $presetHashes);
 }
 
-function upload_blobs($outputDir, $presetNames, $clientApi) {
+function upload_blobs($outputDir,$sourceHash,  $presetNames, $clientApi) {
   foreach($presetNames as $presetName) {
     print("Uploading blob from \033[35m$presetName\033[0m\n");
     $blobPath = $outputDir . "/" . $presetName;
-    $clientApi->request('POST', "/blobs/", file_get_contents($blobPath));
+    $clientApi->request('PUT', "/videoStream/$sourceHash/$presetName", file_get_contents($blobPath));
   }
 }
+
+function delete_custom_blobs($sourceHash,  $presetNames, $clientApi) {
+  foreach($presetNames as $presetName) {
+    print("Deleting custom blobs of $sourceHash for preset \033[35m$presetName\033[0m\n");
+    $clientApi->request('DELETE', "/videoStream/$sourceHash/$presetName");
+  }
+}
+
 
 function main2($command, $arguments, $options) {
   global $apiUrl, $cacheUrl, $apiUsername, $apiPassword, $tempDir, $presetsFile;
@@ -163,7 +173,14 @@ function main2($command, $arguments, $options) {
 
     case 'upload-blobs':
       $outputDir = $arguments[0];
-      upload_blobs($outputDir, array_keys(get_streams(preset_filter($presets, $presetFilters))), $clientApi);
+      $sourceHash = get_sha256($outputDir . "/source");
+      upload_blobs($outputDir, $sourceHash,  array_keys(get_streams(preset_filter($presets, $presetFilters))), $clientApi);
+      break;
+
+    case 'delete-custom-blobs':
+      $outputDir = $arguments[0];
+      $sourceHash = get_sha256($outputDir . "/source");
+      delete_custom_blobs($sourceHash,  array_keys(get_streams(preset_filter($presets, $presetFilters))), $clientApi);
       break;
 
 
