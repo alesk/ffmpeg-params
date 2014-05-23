@@ -23,6 +23,7 @@ $ffmpegMap = [
     ["strict", "-strict %(strict)s", ""],
     ["stats", "-stats", "-nostats"],
     ["movFlags", "-movflags %(movFlags)s", ""],
+    ["metadata", "-metadata \"%(metadata)s\"", ""],
     ["pass", "-pass %(pass)s", ""],
     ["report", "-report", ""],
     ["peakSignalToNoiseRatio", "-psnr", ""],

@@ -16,12 +16,20 @@ $apiUsername = getenv('CELTRA_API_USERNAME') ?: null;
 $apiPassword = getenv('CELTRA_API_PASSWORD') ?: null;
 $tempDir     = (getenv('CELTRA_API_TEMP') ?: '/tmp') . "/ffmpeg";
 
+// Database
+$db_hostname = 'localhost';
+$db_username = 'root';
+$db_password = '';
+$db_database = 'celtra_mab';
+
 $help =<<<EOF
   $scriptName [options] command [args]
 
   Commands:
 
     get-video-streams <creative_id>
+
+    augment-creative <creative_id>
 
     transcode-batch <custom-json> [streamName, ...]
 
@@ -49,6 +57,48 @@ function get_video_streams($creativeId, $tempDir, $clientApi, $clientCache) {
         file_put_contents($outputFile, $clientCache->request('GET', "blobs/$blobHash"));
         print("Movie stream downloaded to:\033[35m$outputFile\033[0m\n");
       }
+}
+
+function videoStreamToHashVersions($videoStream) {
+    $algoVersionPattern = "/(.+)(AlgoVersion)/";
+    $algoVersionKeys = preg_grep($algoVersionPattern, array_keys($videoStream));
+    $algoVersions = array_intersect_key($videoStream, array_flip($algoVersionKeys));
+    $presetKeys = preg_replace($algoVersionPattern, "$1", $algoVersionKeys);
+
+    return Array($videoStream["blobHash"] => array_combine( $presetKeys, array_values($algoVersions)));
+}
+
+function buildVideoStreamsFetchQuery($originalBlobHashes) {
+      $quote = function($quote_char) {return function($val) use ($quote_char) {return $quote_char . $val . $quote_char;};};
+      $sql_quote = $quote("'");
+      return "select * from videoStreams where blobHash in (" . implode(', ', array_map($sql_quote, $originalBlobHashes)) . ")";
+}
+
+function augment_creative($creativeId, $clientApi) {
+      global $db_hostname, $db_username, $db_password, $db_database;
+
+
+      $creativeJson = json_decode($clientApi->request('GET', "creatives/$creativeId"));
+      $videoStreams = array_filter($creativeJson->files, function($file) {return $file->type == 'video';});
+      $blobHashes = array_map(function($file){return $file->blobHash;}, $videoStreams);
+
+      $sql = buildVideoStreamsFetchQuery($blobHashes);
+      $conn = new mysqli($db_hostname, $db_username, $db_password, $db_database);
+      $result = $conn->query($sql);
+
+
+      if ($result) {
+          $ret = array();
+          while($row = $result->fetch_assoc()) {
+              $ret []= videoStreamToHashVersions($row);
+          }
+      } else {
+          print_r($sql);
+          throw new Exception("Error fetching the result: " . $conn->error);
+      }
+
+      print_r($ret);
+      $conn->close();
 }
 
 function transcode_batch($presets) {
@@ -132,6 +182,11 @@ function main2($command, $arguments, $options) {
     case 'get-video-streams':
       $creativeId = $arguments[0];
       get_video_streams($creativeId, $tempDir, $clientApi, $clientCache);
+      break;
+
+    case 'augment-creative':
+      $creativeId = $arguments[0];
+      augment_creative($creativeId, $clientApi);
       break;
 
     case 'transcode-batch':
